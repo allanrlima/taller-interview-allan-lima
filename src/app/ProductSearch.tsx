@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { ErrorState } from "@/components/ErrorState";
-import { formatPrice } from "@/lib/products";
 import type { Product } from "@/types/product";
-import styles from "./page.module.css";
+import { ProductResults } from "./ProductResults";
+import { SearchForm } from "./SearchForm";
 
 interface ProductSearchProps {
   initialProducts: Product[];
@@ -17,20 +16,42 @@ export function ProductSearch({ initialProducts }: ProductSearchProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [requestKey, setRequestKey] = useState(0);
+  const activeController = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    const normalizedQuery = query.trim();
+  const handleSearch = useCallback((nextQuery: string) => {
+    setErrorMessage("");
 
-    if (!normalizedQuery) {
+    if (!nextQuery) {
+      setQuery("");
+      setProducts(initialProducts);
+      setIsRefreshing(false);
       return;
     }
 
-    const controller = new AbortController();
+    setQuery(nextQuery);
+    setIsRefreshing(true);
+  }, [initialProducts]);
 
-    const timeoutId = window.setTimeout(async () => {
+  const handleInput = useCallback(() => {
+    activeController.current?.abort();
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setIsRefreshing(true);
+    setErrorMessage("");
+    setRequestKey((key) => key + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!query) return;
+
+    const controller = new AbortController();
+    activeController.current = controller;
+
+    async function loadProducts() {
       try {
         const response = await fetch(
-          `/api/products?q=${encodeURIComponent(normalizedQuery)}`,
+          `/api/products?q=${encodeURIComponent(query)}`,
           { signal: controller.signal },
         );
 
@@ -49,122 +70,27 @@ export function ProductSearch({ initialProducts }: ProductSearchProps) {
           setIsRefreshing(false);
         }
       }
-    }, 300);
+    }
+
+    void loadProducts();
 
     return () => {
-      window.clearTimeout(timeoutId);
       controller.abort();
+      if (activeController.current === controller) {
+        activeController.current = null;
+      }
     };
-  }, [initialProducts, query, requestKey]);
+  }, [query, requestKey]);
 
   return (
     <>
-      <form
-        className={styles.search}
-        role="search"
-        aria-label="Product search"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <label htmlFor="product-search" className={styles.srOnly}>
-          Search products
-        </label>
-        <span className={styles.searchIcon} aria-hidden="true">⌕</span>
-        <input
-          id="product-search"
-          type="search"
-          value={query}
-          aria-controls="product-results"
-          aria-describedby="search-help"
-          onChange={(event) => {
-            const nextQuery = event.target.value;
-            setQuery(nextQuery);
-            setErrorMessage("");
-
-            if (nextQuery.trim()) {
-              setIsRefreshing(true);
-            } else {
-              setProducts(initialProducts);
-              setIsRefreshing(false);
-            }
-          }}
-          placeholder="Search products"
-          autoComplete="off"
-        />
-        <span id="search-help" className={styles.srOnly}>
-          Search by product name, description, or category. Results update as
-          you type.
-        </span>
-      </form>
-
-      <section
-        id="product-results"
-        className={styles.results}
-        aria-labelledby="results-heading"
-        aria-busy={isRefreshing}
-      >
-        <h2 id="results-heading" className={styles.srOnly}>Product results</h2>
-
-        <div
-          className={styles.refreshStatus}
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {isRefreshing && (
-            <>
-              <span className={styles.spinner} aria-hidden="true" />
-              Updating products…
-            </>
-          )}
-        </div>
-
-        {errorMessage && (
-          <ErrorState
-            message={errorMessage}
-            onRetry={() => {
-              setIsRefreshing(true);
-              setErrorMessage("");
-              setRequestKey((key) => key + 1);
-            }}
-          />
-        )}
-
-        {products.length === 0 ? (
-          <div className={styles.empty}>
-            <h3>No products found</h3>
-            <p>Try a different search term.</p>
-          </div>
-        ) : (
-          <ul className={styles.productGrid}>
-            {products.map((product) => (
-              <li key={product.id}>
-                <article
-                  className={styles.productCard}
-                  aria-labelledby={`${product.id}-name`}
-                  aria-describedby={`${product.id}-description ${product.id}-price`}
-                >
-                  <div>
-                    <p className={styles.category}>{product.category}</p>
-                    <h3 id={`${product.id}-name`}>{product.name}</h3>
-                  </div>
-                  <p id={`${product.id}-description`}>{product.description}</p>
-                  <strong id={`${product.id}-price`}>
-                    {formatPrice(product.priceInCents)}
-                  </strong>
-                </article>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {!isRefreshing && !errorMessage && (
-          <p className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
-            {products.length === 0
-              ? "No products found."
-              : `${products.length} ${products.length === 1 ? "product" : "products"} found.`}
-          </p>
-        )}
-      </section>
+      <SearchForm onInput={handleInput} onSearch={handleSearch} />
+      <ProductResults
+        products={products}
+        isRefreshing={isRefreshing}
+        errorMessage={errorMessage}
+        onRetry={handleRetry}
+      />
     </>
   );
 }

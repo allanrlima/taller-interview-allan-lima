@@ -111,6 +111,47 @@
   display: flex;
 }
 
+.virtualGridViewport {
+  height: clamp(20rem, 70vh, 42rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  border-radius: 0.9rem;
+  contain: strict;
+}
+
+.virtualGridViewport:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 3px;
+}
+
+.virtualGridCanvas {
+  position: relative;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.virtualGridItem {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  will-change: transform;
+}
+
+.virtualGridItem .productCard {
+  height: 100%;
+}
+
+.virtualGridItem .productCard > p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 .productCard {
   display: flex;
   min-height: 12rem;
