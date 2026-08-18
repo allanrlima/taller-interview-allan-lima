@@ -104,6 +104,24 @@ describe("ProductSearch", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
+  it("shows loading placeholders when a request has no previous results", async () => {
+    jest.useFakeTimers();
+    global.fetch = jest.fn(() => new Promise<Response>(() => undefined));
+
+    const { container } = render(<ProductSearch initialProducts={[]} />);
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "headphones" },
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(screen.getByRole("status")).toHaveTextContent("Updating products");
+    expect(screen.queryByText("No products found")).not.toBeInTheDocument();
+    expect(container.querySelectorAll("[aria-hidden='true'] > li")).toHaveLength(6);
+  });
+
   it("mounts only a window of a large result set", () => {
     const largeCatalog = Array.from({ length: 120 }, (_, index) => ({
       ...products[index % products.length],

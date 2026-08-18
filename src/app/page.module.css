@@ -172,6 +172,49 @@
   transform: translateY(-2px);
 }
 
+.skeletonCard {
+  display: flex;
+  min-height: 12rem;
+  width: 100%;
+  padding: 1.25rem;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.skeletonLine {
+  display: block;
+  height: 0.85rem;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  border-radius: 999px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonCategory {
+  width: 30%;
+  height: 0.65rem;
+}
+
+.skeletonTitle {
+  width: 68%;
+  height: 1.1rem;
+}
+
+.skeletonDescription {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.skeletonPrice {
+  width: 38%;
+  margin-top: auto;
+  height: 1rem;
+}
+
 .productCard h3 {
   margin: 0.35rem 0 0;
   color: #0f172a;
@@ -228,8 +271,19 @@
   }
 }
 
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  .spinner,
+  .skeletonLine {
     animation: none;
   }
 }

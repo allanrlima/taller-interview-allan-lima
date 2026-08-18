@@ -1,5 +1,6 @@
 import { ErrorState } from "@/components/ErrorState";
 import type { Product } from "@/types/product";
+import { ProductGridSkeleton } from "./ProductGridSkeleton";
 import { VirtualizedProductGrid } from "./VirtualizedProductGrid";
 import styles from "./page.module.css";
 
@@ -41,7 +42,9 @@ export function ProductResults({
 
       {errorMessage && <ErrorState message={errorMessage} onRetry={onRetry} />}
 
-      {products.length === 0 ? (
+      {isRefreshing && products.length === 0 ? (
+        <ProductGridSkeleton />
+      ) : products.length === 0 ? (
         <div className={styles.empty}>
           <h3>No products found</h3>
           <p>Try a different search term.</p>
