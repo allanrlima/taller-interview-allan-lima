@@ -10,7 +10,12 @@ export function ErrorState({
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className={`${styles.state} ${styles.error}`} role="alert">
+    <div
+      className={`${styles.state} ${styles.error}`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
       <span className={styles.errorIcon} aria-hidden="true">
         !
       </span>
@@ -19,7 +24,7 @@ export function ErrorState({
         <p>{message}</p>
       </div>
       {onRetry && (
-        <button type="button" onClick={onRetry}>
+        <button type="button" onClick={onRetry} aria-label="Try loading again">
           Try again
         </button>
       )}

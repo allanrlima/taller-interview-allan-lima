@@ -58,21 +58,44 @@ export default function ProductSearch() {
           <p>Browse our collection or search by name, description, and category.</p>
         </header>
 
-        <label className={styles.search}>
+        <form
+          className={styles.search}
+          role="search"
+          aria-label="Product search"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <label htmlFor="product-search" className={styles.srOnly}>
+            Search products
+          </label>
           <span className={styles.searchIcon} aria-hidden="true">⌕</span>
-          <span className={styles.srOnly}>Search products</span>
           <input
+            id="product-search"
+            type="search"
             value={query}
+            aria-controls="product-results"
+            aria-describedby="search-help"
             onChange={(event) => {
               setQuery(event.target.value);
               setStatus("loading");
               setErrorMessage("");
             }}
             placeholder="Search products"
+            autoComplete="off"
           />
-        </label>
+          <span id="search-help" className={styles.srOnly}>
+            Search by product name, description, or category. Results update as
+            you type.
+          </span>
+        </form>
 
-        <div className={styles.results}>
+        <section
+          id="product-results"
+          className={styles.results}
+          aria-labelledby="results-heading"
+          aria-busy={status === "loading"}
+        >
+          <h2 id="results-heading" className={styles.srOnly}>Product results</h2>
+
           {status === "loading" && <LoadingState message="Loading products…" />}
 
           {status === "error" && (
@@ -88,26 +111,42 @@ export default function ProductSearch() {
 
           {status === "success" && products.length === 0 && (
             <div className={styles.empty}>
-              <h2>No products found</h2>
+              <h3>No products found</h3>
               <p>Try a different search term.</p>
             </div>
           )}
 
           {status === "success" && products.length > 0 && (
-            <div className={styles.productGrid}>
+            <ul className={styles.productGrid}>
               {products.map((product) => (
-                <article className={styles.productCard} key={product.id}>
-                  <div>
-                    <p className={styles.category}>{product.category}</p>
-                    <h2>{product.name}</h2>
-                  </div>
-                  <p>{product.description}</p>
-                  <strong>{formatPrice(product.priceInCents)}</strong>
-                </article>
+                <li key={product.id}>
+                  <article
+                    className={styles.productCard}
+                    aria-labelledby={`${product.id}-name`}
+                    aria-describedby={`${product.id}-description ${product.id}-price`}
+                  >
+                    <div>
+                      <p className={styles.category}>{product.category}</p>
+                      <h3 id={`${product.id}-name`}>{product.name}</h3>
+                    </div>
+                    <p id={`${product.id}-description`}>{product.description}</p>
+                    <strong id={`${product.id}-price`}>
+                      {formatPrice(product.priceInCents)}
+                    </strong>
+                  </article>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
-        </div>
+
+          {status === "success" && (
+            <p className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
+              {products.length === 0
+                ? "No products found."
+                : `${products.length} ${products.length === 1 ? "product" : "products"} found.`}
+            </p>
+          )}
+        </section>
       </section>
     </main>
   );

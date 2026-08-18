@@ -83,6 +83,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.productGrid > li {
+  display: flex;
 }
 
 .productCard {
@@ -92,6 +99,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.9rem;
@@ -104,7 +112,7 @@
   transform: translateY(-2px);
 }
 
-.productCard h2 {
+.productCard h3 {
   margin: 0.35rem 0 0;
   color: #0f172a;
   font-size: 1.15rem;
@@ -131,12 +139,12 @@
   border-radius: 0.75rem;
 }
 
-.empty h2,
+.empty h3,
 .empty p {
   margin: 0;
 }
 
-.empty h2 {
+.empty h3 {
   margin-bottom: 0.35rem;
   color: #334155;
   font-size: 1.1rem;
