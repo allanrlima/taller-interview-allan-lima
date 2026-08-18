@@ -81,8 +81,8 @@
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -162,8 +162,18 @@
   border: 0;
 }
 
+@media (max-width: 56rem) {
+  .productGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 40rem) {
   .page {
     padding-top: 2.5rem;
+  }
+
+  .productGrid {
+    grid-template-columns: 1fr;
   }
 }
