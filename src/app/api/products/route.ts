@@ -1,4 +1,5 @@
 import { products } from "@/data/products";
+import { filterProductsByQuery } from "@/lib/products";
 
 const NETWORK_DELAY_MS = 350;
 
@@ -10,7 +11,12 @@ export async function GET(request: Request) {
     return Response.json({ message: "Simulated product service failure" }, { status: 503 });
   }
 
-  return Response.json(products, {
+  const matchingProducts = filterProductsByQuery(
+    products,
+    searchParams.get("q") ?? "",
+  );
+
+  return Response.json(matchingProducts, {
     headers: {
       "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
     },
