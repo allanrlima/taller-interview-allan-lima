@@ -1,0 +1,82 @@
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 8rem;
+  padding: 1.5rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.state p,
+.state h2 {
+  margin: 0;
+}
+
+.state h2 {
+  margin-bottom: 0.25rem;
+  color: #991b1b;
+  font-size: 1rem;
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #cbd5e1;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.error {
+  flex-wrap: wrap;
+  color: #7f1d1d;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+}
+
+.errorIcon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  color: white;
+  font-weight: 700;
+  background: #dc2626;
+  border-radius: 50%;
+}
+
+.state button {
+  padding: 0.55rem 0.9rem;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  background: #b91c1c;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.state button:hover {
+  background: #991b1b;
+}
+
+.state button:focus-visible {
+  outline: 3px solid rgba(185, 28, 28, 0.25);
+  outline-offset: 2px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

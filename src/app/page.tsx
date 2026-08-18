@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+import { ErrorState } from "@/components/ErrorState";
+import { LoadingState } from "@/components/LoadingState";
+import { formatPrice } from "@/lib/products";
 import type { Product } from "@/types/product";
+import styles from "./page.module.css";
 
 export default function ProductSearch() {
   const [query, setQuery] = useState("");
@@ -11,6 +15,7 @@ export default function ProductSearch() {
     "loading",
   );
   const [errorMessage, setErrorMessage] = useState("");
+  const [requestKey, setRequestKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -42,35 +47,68 @@ export default function ProductSearch() {
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [query]);
+  }, [query, requestKey]);
 
   return (
-    <div>
-      <input
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setStatus("loading");
-          setErrorMessage("");
-        }}
-        placeholder="Search products"
-      />
+    <main className={styles.page}>
+      <section className={styles.catalog} aria-labelledby="page-title">
+        <header className={styles.header}>
+          <p className={styles.eyebrow}>Taller Store</p>
+          <h1 id="page-title">Find your next favorite product</h1>
+          <p>Browse our collection or search by name, description, and category.</p>
+        </header>
 
-      {status === "loading" && <div role="status">Loading products…</div>}
+        <label className={styles.search}>
+          <span className={styles.searchIcon} aria-hidden="true">⌕</span>
+          <span className={styles.srOnly}>Search products</span>
+          <input
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setStatus("loading");
+              setErrorMessage("");
+            }}
+            placeholder="Search products"
+          />
+        </label>
 
-      {status === "error" && <div role="alert">{errorMessage}</div>}
+        <div className={styles.results}>
+          {status === "loading" && <LoadingState message="Loading products…" />}
 
-      {status === "success" && products.length === 0 && (
-        <div>No products found</div>
-      )}
+          {status === "error" && (
+            <ErrorState
+              message={errorMessage}
+              onRetry={() => {
+                setStatus("loading");
+                setErrorMessage("");
+                setRequestKey((key) => key + 1);
+              }}
+            />
+          )}
 
-      {status === "success" && products.length > 0 &&
-        products.map((product) => (
-          <div key={product.id}>
-            <h3>{product.name}</h3>
-            <span>${(product.priceInCents / 100).toFixed(2)}</span>
-          </div>
-        ))}
-    </div>
+          {status === "success" && products.length === 0 && (
+            <div className={styles.empty}>
+              <h2>No products found</h2>
+              <p>Try a different search term.</p>
+            </div>
+          )}
+
+          {status === "success" && products.length > 0 && (
+            <div className={styles.productGrid}>
+              {products.map((product) => (
+                <article className={styles.productCard} key={product.id}>
+                  <div>
+                    <p className={styles.category}>{product.category}</p>
+                    <h2>{product.name}</h2>
+                  </div>
+                  <p>{product.description}</p>
+                  <strong>{formatPrice(product.priceInCents)}</strong>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

@@ -1,3 +1,5 @@
+import { LoadingState } from "@/components/LoadingState";
+
 export default function Loading() {
-  return <main className="shell"><div className="status">Loading page…</div></main>;
+  return <main><LoadingState message="Loading page…" /></main>;
 }
