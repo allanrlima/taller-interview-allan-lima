@@ -16,7 +16,7 @@ export function SearchForm({ onInput, onSearch }: SearchFormProps) {
   const lastSubmittedQuery = useRef("");
 
   useEffect(() => {
-    const normalizedQuery = debouncedQuery.trim();
+    const normalizedQuery = debouncedQuery.trim().toLowerCase();
     if (normalizedQuery === lastSubmittedQuery.current) return;
 
     lastSubmittedQuery.current = normalizedQuery;

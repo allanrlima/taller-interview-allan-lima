@@ -66,6 +66,44 @@ describe("ProductSearch", () => {
     expect(screen.queryByRole("heading", { name: "Canvas Backpack" })).not.toBeInTheDocument();
   });
 
+  it("reuses cached results when a normalized query is repeated", async () => {
+    jest.useFakeTimers();
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      const matchingProducts = url.includes("headphones")
+        ? [products[1]]
+        : [products[0]];
+
+      return {
+        ok: true,
+        json: async () => matchingProducts,
+      } as Response;
+    });
+
+    render(<ProductSearch initialProducts={products} />);
+    const searchbox = screen.getByRole("searchbox");
+
+    fireEvent.change(searchbox, { target: { value: "Headphones" } });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+    });
+    expect(await screen.findByRole("heading", { name: "Wireless Headphones" })).toBeInTheDocument();
+
+    fireEvent.change(searchbox, { target: { value: "backpack" } });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+    });
+    expect(await screen.findByRole("heading", { name: "Canvas Backpack" })).toBeInTheDocument();
+
+    fireEvent.change(searchbox, { target: { value: "  HEADPHONES  " } });
+    await act(async () => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(screen.getByRole("heading", { name: "Wireless Headphones" })).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
   it("mounts only a window of a large result set", () => {
     const largeCatalog = Array.from({ length: 120 }, (_, index) => ({
       ...products[index % products.length],
